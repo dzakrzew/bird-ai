@@ -6,7 +6,7 @@ class Bird(pygame.sprite.Sprite):
         super().__init__()
         self.id = id
         self.game = game
-        self.isKilled = False
+        self.is_killed = False
         self.result = 0
         self.population = population
         self.brain = Brain()
@@ -18,17 +18,17 @@ class Bird(pygame.sprite.Sprite):
 
     def killed(self, result):
         self.result = result
-        self.isKilled = True
+        self.is_killed = True
         if result > self.game.best:
             self.game.best = result
         
         self.kill()
 
     def update(self):
-        if self.isKilled:
+        if self.is_killed:
             return
         
-        next_block_data = self.game.getNextBottomBlockData()
+        next_block_data = self.game.get_next_bottom_block_data()
         next_block_distance = next_block_data['x'] - 100
         next_block_height_diff = next_block_data['y'] - self.rect.y - 60
 

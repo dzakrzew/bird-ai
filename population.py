@@ -2,26 +2,25 @@ from bird import Bird
 import random
 
 class Population:
+    MUTATION_PROBABILITY = 10
+    CROSSOVER_TRESHOLD = 50
+
     def __init__(self, game, n):
         self.n = n
         self.game = game
         self.population = []
     
-    def getAliveCount(self):
+    def get_alive_count(self):
         c = len(self.population)
         for bird in self.population:
-            if bird.isKilled:
+            if bird.is_killed:
                 c -= 1
         return c
 
     def over(self):
-        top = self.getTop()
-        for b in top:
-            print('Bird#' + str(b.id) + ', result: ' + str(b.result))
-        self.newPopulation()
-        #self.initPopulation()
+        self.new_population()
 
-    def getTop(self):
+    def get_top(self):
         population_sorted = sorted(self.population, key=lambda b: b.result, reverse=True)
         return population_sorted
 
@@ -29,57 +28,33 @@ class Population:
         childA = Bird(0, 100, 100, self, self.game)
         childB = Bird(1, 100, 100, self, self.game)
 
-        for x in range(len(birdA.brain.l1)):
-            for y in range(len(birdA.brain.l1[x])):
-                r = random.randint(0, 100)
-                
-                b = birdA
-                if r < 50:
+        for l in range(len(birdA.brain.layers)):
+            for x in range(len(birdA.brain.layers[l])):
+                for y in range(len(birdA.brain.layers[l][x])):
+                    r = random.randint(0, 100)
+                    
+                    a = birdA
                     b = birdB
-                
-                childA.brain.l1[x][y] = b.brain.l1[x][y]
-
-        for x in range(len(birdA.brain.l2)):
-            for y in range(len(birdA.brain.l2[x])):
-                r = random.randint(0, 100)
-                
-                b = birdA
-                if r < 50:
-                    b = birdB
-                
-                childA.brain.l2[x][y] = b.brain.l2[x][y]    
-
-        for x in range(len(birdA.brain.l3)):
-            for y in range(len(birdA.brain.l3[x])):
-                r = random.randint(0, 100)
-                
-                b = birdA
-                if r < 50:
-                    b = birdB
-                
-                childA.brain.l3[x][y] = b.brain.l3[x][y] 
+                    if r < Population.CROSSOVER_TRESHOLD:
+                        a = birdB
+                        b = birdA
+                    
+                    childA.brain.layers[l][x][y] = a.brain.layers[l][x][y]
+                    childB.brain.layers[l][x][y] = b.brain.layers[l][x][y]
 
         return childA, childB
 
     def mutate(self, bird):
-        for x in range(len(bird.brain.l1)):
-            for y in range(len(bird.brain.l1[x])):
-                if random.randint(0, 100) < 30:
-                    bird.brain.l1[x][y] = bird.brain.l1[x][y] * random.uniform(-1, 1)
+        for l in range(len(bird.brain.layers)):
+            for x in range(len(bird.brain.layers[l])):
+                for y in range(len(bird.brain.layers[l][x])):
+                    if random.randint(0, 100) < Population.MUTATION_PROBABILITY:
+                        bird.brain.layers[l][x][y] = bird.brain.layers[l][x][y] * random.uniform(-1., 1)
 
-        for x in range(len(bird.brain.l2)):
-            for y in range(len(bird.brain.l2[x])):
-                if random.randint(0, 100) < 30:
-                    bird.brain.l2[x][y] = bird.brain.l2[x][y] * random.uniform(-1, 1)
-
-        for x in range(len(bird.brain.l3)):
-            for y in range(len(bird.brain.l3[x])):
-                if random.randint(0, 100) < 30:
-                    bird.brain.l3[x][y] = bird.brain.l3[x][y] * random.uniform(-1, 1)
         return bird
 
-    def newPopulation(self):
-        top = self.getTop()
+    def new_population(self):
+        top = self.get_top()
         childA, childB = self.crossover(top[0], top[1])
         childC, childD = self.crossover(top[0], top[2])
         
@@ -95,7 +70,6 @@ class Population:
         self.game.birds.add(childA)
         self.game.birds.add(childB)
 
-
         self.population.append(childC)
         self.population.append(childD)
         self.game.all_sprites.add(childC)
@@ -105,14 +79,14 @@ class Population:
 
         for i in range(self.n - 4):
             bird = Bird(i + 4, 100, 100, self, self.game)
-            
-            bird.brain.l1 = self.mutate(top[i]).brain.l1
+            mutated = self.mutate(top[i])
+            bird.brain.layers = mutated.brain.layers
 
             self.population.append(bird)
             self.game.all_sprites.add(bird)
             self.game.birds.add(bird)
 
-    def initPopulation(self):
+    def init_population(self):
         for bird in self.population:
             bird.kill()
         
