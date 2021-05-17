@@ -1,13 +1,14 @@
-import sys, pygame, math, random, time
+import sys, pygame, math, random, time, os
 from block import Block
 from population import Population
+from base import Base
 
 class Game:
     def __init__(self):
         pygame.init()
         pygame.font.init()
         self.font = pygame.font.SysFont(pygame.font.get_default_font(), 20)
-        self.screen = pygame.display.set_mode((700, 500))
+        self.screen = pygame.display.set_mode((500, 850))
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.best = 0
@@ -18,7 +19,7 @@ class Game:
         self.bottom_blocks = pygame.sprite.Group()
         self.blocks = pygame.sprite.Group()
         self.birds = pygame.sprite.Group()
-        self.bg = pygame.image.load('sprites/bg.png')
+        self.bg = pygame.transform.scale2x(pygame.image.load(os.path.join("sprites/bg.png")))
         self.population = Population(self, 50)
         self.population.init_population()
 
@@ -44,7 +45,7 @@ class Game:
                 block.kill()
 
     def generate_block(self):
-        h = random.randint(100, 300)
+        h = random.randint(250, 500)
         block_top = Block(Block.TYPE_TOP, 700, h)
         block_bottom = Block(Block.TYPE_BOTTOM, 700, h)
         
@@ -54,12 +55,16 @@ class Game:
         self.bottom_blocks.add(block_bottom)
         self.blocks.add(block_bottom)
 
+
+
     def update(self):
+
         for bird in self.birds:
+            bird.update_sprite(self.screen)
             if not bird.is_killed:
                 if pygame.sprite.spritecollide(bird, self.blocks, False):
                     bird.killed(self.x)
-                elif bird.rect.y < -100 or 500 < bird.rect.y:
+                elif bird.rect.y < -100 or 750 < bird.rect.y:
                     bird.killed(self.x)
         
         if self.population.get_alive_count() == 0:
@@ -89,10 +94,12 @@ class Game:
         self.screen.blit(textsurface, (0, 0))
 
     def run(self):
+        base = Base(750)
         while True:
             self.handle_events()
             self.update()
             self.redraw()
-            
+            base.draw(self.screen)
+            base.move()
             pygame.display.flip()
             self.clock.tick_busy_loop(self.fps)
