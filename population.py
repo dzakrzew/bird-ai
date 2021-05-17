@@ -25,8 +25,8 @@ class Population:
         return population_sorted
 
     def crossover(self, birdA, birdB):
-        childA = Bird(0, 100, 100, self, self.game)
-        childB = Bird(1, 100, 100, self, self.game)
+        childA = Bird(0, 100, 400, self, self.game)
+        childB = Bird(1, 100, 400, self, self.game)
 
         for l in range(len(birdA.brain.layers)):
             for x in range(len(birdA.brain.layers[l])):
@@ -78,7 +78,7 @@ class Population:
         self.game.birds.add(childD)
 
         for i in range(self.n - 4):
-            bird = Bird(i + 4, 100, 100, self, self.game)
+            bird = Bird(i + 4, 100, 400, self, self.game)
             mutated = self.mutate(top[i])
             bird.brain.layers = mutated.brain.layers
 
@@ -93,7 +93,7 @@ class Population:
         self.population = []
         
         for i in range(self.n):
-            bird = Bird(i, 100, 100, self, self.game)
+            bird = Bird(i, 100, 400, self, self.game)
             
             self.population.append(bird)
             self.game.all_sprites.add(bird)

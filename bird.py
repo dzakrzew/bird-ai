@@ -2,6 +2,7 @@ import pygame, random
 from brain import Brain
 
 class Bird(pygame.sprite.Sprite):
+    IMGS = [pygame.image.load("sprites/bird1.png"),pygame.image.load("sprites/bird2.png"),pygame.image.load("sprites/bird3.png")]
     def __init__(self, id, x, y, population, game):
         super().__init__()
         self.id = id
@@ -10,11 +11,11 @@ class Bird(pygame.sprite.Sprite):
         self.result = 0
         self.population = population
         self.brain = Brain()
-        self.image = pygame.Surface([30, 30])
-        self.image.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+        self.image = self.IMGS[0]
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
         self.force = 0.0
+        self.img_count = 0
 
     def killed(self, result):
         self.result = result
@@ -23,6 +24,22 @@ class Bird(pygame.sprite.Sprite):
             self.game.best = result
         
         self.kill()
+    def update_sprite(self,win):
+        self.img_count += 1
+
+        if self.img_count < 5:
+            self.image = self.IMGS[0]
+        elif self.img_count < 10:
+            self.image = self.IMGS[1]
+        elif self.img_count < 15:
+            self.image = self.IMGS[2]
+        elif self.img_count < 20:
+            self.image = self.IMGS[1]
+        elif self.img_count < 21:
+            self.image = self.IMGS[0]
+            self.img_count=0
+
+
 
     def update(self):
         if self.is_killed:
